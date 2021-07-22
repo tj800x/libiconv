@@ -69,6 +69,7 @@ extern "C" {
 #ifndef LIBICONV_PLUG
 #define iconv_open libiconv_open
 #endif
+extern iconv_t iconv_open_internal (const char* tocode, const char* fromcode);
 extern iconv_t iconv_open (const char* tocode, const char* fromcode);
 
 /* Converts, using conversion descriptor ‘cd’, at most ‘*inbytesleft’ bytes
@@ -79,12 +80,14 @@ extern iconv_t iconv_open (const char* tocode, const char* fromcode);
 #ifndef LIBICONV_PLUG
 #define iconv libiconv
 #endif
+extern size_t iconv_internal (iconv_t cd, @ICONV_CONST@ char* * inbuf, size_t *inbytesleft, char* * outbuf, size_t *outbytesleft);
 extern size_t iconv (iconv_t cd, @ICONV_CONST@ char* * inbuf, size_t *inbytesleft, char* * outbuf, size_t *outbytesleft);
 
 /* Frees resources allocated for conversion descriptor ‘cd’. */
 #ifndef LIBICONV_PLUG
 #define iconv_close libiconv_close
 #endif
+extern int iconv_close_internal (iconv_t cd);
 extern int iconv_close (iconv_t cd);
 
 
@@ -132,7 +135,9 @@ extern int iconv_open_into (const char* tocode, const char* fromcode,
 
 /* Control of attributes. */
 #define iconvctl libiconvctl
+//#define iconvctl libiconvctl_internal
 extern int iconvctl (iconv_t cd, int request, void* argument);
+extern int iconvctl_internal (iconv_t cd, int request, void* argument);
 
 /* Hook performed after every successful conversion of a Unicode character. */
 typedef void (*iconv_unicode_char_hook) (unsigned int uc, void* data);
@@ -212,6 +217,11 @@ struct iconv_fallbacks {
 
 /* Listing of locale independent encodings. */
 #define iconvlist libiconvlist
+extern void iconvlist_internal (int (*do_one) (unsigned int namescount,
+                                      const char * const * names,
+                                      void* data),
+                       void* data);
+
 extern void iconvlist (int (*do_one) (unsigned int namescount,
                                       const char * const * names,
                                       void* data),
@@ -219,6 +229,7 @@ extern void iconvlist (int (*do_one) (unsigned int namescount,
 
 /* Canonicalize an encoding name.
    The result is either a canonical encoding name, or name itself. */
+extern const char * iconv_canonicalize_internal (const char * name);
 extern const char * iconv_canonicalize (const char * name);
 
 /* Support for relocatable packages.  */

@@ -221,6 +221,11 @@ static int strequal (const char* str1, const char* str2)
 
 iconv_t iconv_open (const char* tocode, const char* fromcode)
 {
+  return iconv_open_internal (tocode, fromcode);
+}
+
+iconv_t iconv_open_internal (const char* tocode, const char* fromcode)
+{
   struct conv_struct * cd;
   unsigned int from_index;
   int from_wchar;
@@ -251,6 +256,13 @@ size_t iconv (iconv_t icd,
               ICONV_CONST char* * inbuf, size_t *inbytesleft,
               char* * outbuf, size_t *outbytesleft)
 {
+	return iconv_internal(icd,inbuf, inbytesleft,outbuf,outbytesleft);
+}
+
+size_t iconv_internal (iconv_t icd,
+              ICONV_CONST char* * inbuf, size_t *inbytesleft,
+              char* * outbuf, size_t *outbytesleft)
+{
   conv_t cd = (conv_t) icd;
   if (inbuf == NULL || *inbuf == NULL)
     return cd->lfuncs.loop_reset(icd,outbuf,outbytesleft);
@@ -259,8 +271,11 @@ size_t iconv (iconv_t icd,
                                    (const char* *)inbuf,inbytesleft,
                                    outbuf,outbytesleft);
 }
+int iconv_close (iconv_t icd) {
+	return iconv_close_internal(icd);
+}
 
-int iconv_close (iconv_t icd)
+int iconv_close_internal (iconv_t icd)
 {
   conv_t cd = (conv_t) icd;
   free(cd);
@@ -304,6 +319,10 @@ invalid:
 }
 
 int iconvctl (iconv_t icd, int request, void* argument)
+{ return iconvctl_internal(icd, request, argument);
+}	
+
+int iconvctl_internal (iconv_t icd, int request, void* argument)
 {
   conv_t cd = (conv_t) icd;
   switch (request) {
@@ -376,6 +395,13 @@ static int compare_by_name (const void * arg1, const void * arg2)
 }
 
 void iconvlist (int (*do_one) (unsigned int namescount,
+                               const char * const * names,
+                               void* data),
+                void* data) {
+   return iconvlist_internal(do_one, data);				
+}
+
+void iconvlist_internal (int (*do_one) (unsigned int namescount,
                                const char * const * names,
                                void* data),
                 void* data)
@@ -488,7 +514,12 @@ static const unsigned short all_canonical[] = {
 #endif
 };
 
-const char * iconv_canonicalize (const char * name)
+const char * iconv_canonicalize (const char * name) {
+  return iconv_canonicalize_internal(name);
+}
+
+
+const char * iconv_canonicalize_internal (const char * name)
 {
   const char* code;
   char buf[MAX_WORD_LENGTH+10+1];
